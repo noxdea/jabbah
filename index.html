@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#020617">
+  <meta name="description" content="Jabbah parses, queries, sanitizes, and extracts real-world HTML in pure Ruby.">
+  <link rel="canonical" href="https://noxdea.github.io/jabbah/">
+  <title>Jabbah — HTML made useful</title>
+  <style>
+    :root { color-scheme: dark; --bg:#020617; --panel:#0f172a; --line:#334155; --text:#e2e8f0; --muted:#94a3b8; --accent:#2dd4bf; --ink:#042f2e; }
+    * { box-sizing: border-box; }
+    html { background: var(--bg); }
+    body { margin: 0; min-width: 320px; color: var(--text); background: var(--bg); font: 16px/1.6 "Avenir Next", Avenir, system-ui, sans-serif; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+    .skip { position: absolute; top: -5rem; left: 1rem; z-index: 10; padding: .6rem .9rem; color: var(--ink); background: var(--accent); }
+    .skip:focus { top: 1rem; }
+    .wrap { width: min(1160px, calc(100% - 40px)); margin: auto; }
+    header { display: flex; justify-content: space-between; align-items: center; min-height: 74px; border-bottom: 1px solid var(--line); }
+    .brand { font: 700 1.25rem/1 "DIN Alternate", "Arial Narrow", sans-serif; text-decoration: none; }
+    nav { display: flex; gap: 1.4rem; color: var(--muted); font-size: .9rem; }
+    nav a { text-decoration: none; }
+    nav a:hover { color: var(--text); }
+    .hero { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,.9fr); gap: clamp(2rem,6vw,6rem); align-items: end; padding: 94px 0 58px; }
+    h1,h2,h3,p { margin-top: 0; }
+    h1,h2 { font-family: "DIN Alternate", "Arial Narrow", sans-serif; font-weight: 700; text-wrap: balance; }
+    h1 { max-width: 13ch; margin-bottom: 0; font-size: clamp(4rem,7.6vw,7.5rem); line-height: .94; }
+    h2 { margin-bottom: 1rem; font-size: clamp(2.2rem,4vw,3.5rem); line-height: 1.05; }
+    p { text-wrap: pretty; }
+    .lede { max-width: 45ch; color: var(--muted); font-size: 1.08rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.7rem; }
+    .button { display: inline-flex; align-items: center; min-height: 44px; padding: .6rem 1rem; border: 1px solid var(--line); text-decoration: none; }
+    .button.primary { border-color: var(--accent); color: var(--ink); background: var(--accent); font-weight: 700; }
+    .lab { margin-bottom: 96px; border: 1px solid var(--line); background: var(--panel); }
+    .lab-bar { display: flex; justify-content: space-between; gap: 1rem; padding: .7rem 1rem; border-bottom: 1px solid var(--line); color: var(--muted); font: .75rem/1.4 ui-monospace, monospace; }
+    .lab-body { display: grid; grid-template-columns: 1fr 1fr; min-height: 340px; }
+    .pane { min-width: 0; padding: 1.35rem; }
+    .pane + .pane { border-left: 1px solid var(--line); }
+    .pane h3 { margin-bottom: 1.5rem; color: var(--muted); font-size: .85rem; font-weight: 600; }
+    .pane pre { max-width: 100%; overflow-x: auto; margin: 0; font: .78rem/1.85 ui-monospace, monospace; }
+    .pane pre b { color: var(--accent); font-weight: 500; }
+    .tree { border-left: 1px solid var(--accent); padding-left: 1rem; font: .8rem/1.9 ui-monospace, monospace; }
+    .tree span { display: block; overflow-wrap: anywhere; }
+    .tree .indent { padding-left: 1.2rem; }
+    .tree .deeper { padding-left: 2.4rem; }
+    .tree b { color: var(--accent); font-weight: 500; }
+    .lab-foot { display: flex; justify-content: space-between; gap: 1rem; padding: .8rem 1.35rem; border-top: 1px solid var(--line); color: var(--muted); font: .75rem/1.4 ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+    .lab-foot strong { color: var(--accent); font-weight: 500; }
+    .section { display: grid; grid-template-columns: .7fr 1.3fr; gap: clamp(2rem,7vw,7rem); padding: 80px 0; border-top: 1px solid var(--line); }
+    .section p { max-width: 55ch; color: var(--muted); }
+    .rows { border-top: 1px solid var(--line); }
+    .row { display: grid; grid-template-columns: 140px 1fr; gap: 1.4rem; padding: 1.2rem 0; border-bottom: 1px solid var(--line); }
+    .row b { color: var(--accent); font-weight: 600; }
+    .row p { margin: 0; }
+    pre.command { max-width: 100%; overflow-x: auto; margin: 1.3rem 0 0; padding: 1.15rem; border: 1px solid var(--line); color: var(--accent); background: var(--panel); font: .84rem/1.7 ui-monospace, monospace; }
+    footer { display: flex; justify-content: space-between; gap: 1rem; padding: 30px 0 46px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+    @media (max-width: 840px) { .hero,.section { grid-template-columns: 1fr; } .hero { padding-top: 72px; } .lede { max-width: 60ch; } }
+    @media (max-width: 560px) { .wrap { width: calc(100% - 24px); } nav a:not(:last-child) { display: none; } .lab-body { grid-template-columns: 1fr; } .pane + .pane { border-left: 0; border-top: 1px solid var(--line); } .lab-foot { flex-direction: column; } .row { grid-template-columns: 1fr; gap: .3rem; } footer { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="wrap"><a class="brand" href="./">Jabbah</a><nav aria-label="Primary navigation"><a href="#capabilities">Capabilities</a><a href="#safety">Safety</a><a href="https://github.com/noxdea/jabbah">Source</a></nav></header>
+  <main id="content">
+    <section class="hero wrap"><h1>Make broken HTML useful.</h1><div><p class="lede">Parse real-world markup into a traversable tree. Query what matters, clean unsafe content, and extract an article without a browser or native extension.</p><div class="actions"><a class="button primary" href="https://rubygems.org/gems/jabbah">Install Jabbah</a><a class="button" href="https://github.com/noxdea/jabbah#quick-start">Read the guide</a></div></div></section>
+    <div class="lab wrap" aria-label="HTML parsing and sanitization example">
+      <div class="lab-bar"><span>document.html</span><span>parse / select / clean</span></div>
+      <div class="lab-body">
+        <div class="pane"><h3>Incoming markup</h3><pre><code>&lt;main&gt;
+  &lt;h1&gt;Field notes&lt;/h1&gt;
+  &lt;p class="lead"&gt;A story worth keeping
+  &lt;img src="https://remote.test/photo.png"&gt;
+  &lt;script&gt;track()&lt;/script&gt;
+&lt;/main&gt;</code></pre></div>
+        <div class="pane"><h3>Safe document tree</h3><div class="tree"><span><b>document</b></span><span class="indent">html</span><span class="deeper">body</span><span class="deeper"><b>main</b></span><span class="deeper">h1  Field notes</span><span class="deeper">p.lead  A story worth keeping</span><span class="deeper">img  remote source blocked</span></div></div>
+      </div>
+      <div class="lab-foot"><span>Jabbah::Sanitize.clean(document, profile: :feed)</span><strong>1 remote image blocked</strong></div>
+    </div>
+    <section class="section wrap" id="capabilities"><div><h2>A small toolkit for documents.</h2><p>The parser tolerates imperfect input without turning into a browser engine.</p></div><div class="rows"><div class="row"><b>Parse</b><p>Documents and fragments with implicit element closing and charset decoding.</p></div><div class="row"><b>Select</b><p>Find nodes by tag, id, class, attributes, and common structural selectors.</p></div><div class="row"><b>Extract</b><p>Find article-like content and a readable title, byline, and excerpt.</p></div><div class="row"><b>Serialize</b><p>Clone a document and write safe, escaped HTML.</p></div></div></section>
+    <section class="section wrap" id="safety"><div><h2>Clean before display.</h2><p>Docs, feed, and mail profiles drop active elements and unsafe URLs. Remote images are blocked by default; <code>cid:</code> images survive for mail readers.</p></div><div><p>Sanitization returns a clone. The original parsed document remains available for inspection.</p><pre class="command"><code>require "jabbah"
+document = Jabbah.parse(html)
+safe = Jabbah::Sanitize.clean(document, profile: :feed)
+puts safe.to_html
+puts safe.blocked_count</code></pre></div></section>
+  </main>
+  <footer class="wrap"><span>Jabbah 0.1.0</span><span>Ruby 3.2+ / MIT</span></footer>
+</body>
+</html>
