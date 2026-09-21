@@ -1,0 +1,62 @@
+module Jabbah
+  VERSION: String
+  def self.parse: (String input, ?encoding: Symbol | String) -> Document
+  def self.fragment: (String input, ?context: String) -> Document
+
+  class Error < StandardError
+  end
+
+  class Node
+    attr_accessor parent: Node?
+    attr_reader type: Symbol
+    attr_reader name: String?
+    attr_reader attributes: Hash[String, String?]
+    attr_reader children: Array[Node]
+    attr_reader data: String?
+    def initialize: (Symbol type, ?name: String?, ?attributes: Hash[String, String?], ?data: String?) -> void
+    def element?: () -> bool
+    def text?: () -> bool
+    def comment?: () -> bool
+    def document?: () -> bool
+    def []: (String | Symbol key) -> untyped
+    def []=: (String | Symbol key, String? value) -> untyped
+    def add_child: (Node child) -> Node
+    def remove: () -> Node
+    def each: () { (Node) -> void } -> Array[Node]
+    def ancestors: () -> Array[Node]
+    def descendants: () -> Enumerator[Node, void]
+    def at: (String selector) -> Node?
+    def search: (String selector) -> Array[Node]
+    def text: () -> String
+    def clone: () -> Node
+    def to_html: (?indent: String?) -> String
+  end
+
+  class Document
+    attr_reader encoding: Encoding
+    attr_reader blocked_count: Integer
+    def self.parse: (String input, ?encoding: Symbol | String) -> Document
+    def self.fragment: (String input, ?context: String) -> Document
+    def root: () -> Node
+    def head: () -> Node?
+    def body: () -> Node?
+    def title: () -> String?
+    def doctype: () -> String?
+    def text: () -> String
+    def at: (String selector) -> Node?
+    def search: (String selector) -> Array[Node]
+    def each: () { (Node) -> void } -> Array[Node]
+    def to_html: (?indent: String?) -> String
+    def clone: () -> Document
+  end
+
+  module Sanitize
+    DEFAULT: Hash[Symbol, bool]
+    PROFILES: Hash[Symbol, Hash[Symbol, bool]]
+    def self.clean: (Document | String document, ?profile: Symbol | Hash[Symbol, bool], ?allow: Hash[Symbol, bool], ?base_url: String?, ?on_blocked: Proc) -> Document
+  end
+
+  module Extract
+    def self.article: (Document | String document) -> Hash[Symbol, untyped]?
+  end
+end
