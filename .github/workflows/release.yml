@@ -6,27 +6,34 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   publish:
+    name: Publish gem
     runs-on: ubuntu-latest
     environment: release
     permissions:
-      contents: write
-      id-token: write
+      contents: write # Required to create the GitHub release.
+      id-token: write # Required for RubyGems trusted publishing.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
           ruby-version: '3.4'
-          bundler-cache: true
       - name: Verify tag and version
         run: test "$GITHUB_REF_NAME" = "v$(ruby -Ilib -rjabbah/version -e 'print Jabbah::VERSION')"
+      - run: bundle install
       - run: bundle exec rake test
-      - run: gem build --strict jabbah.gemspec --output jabbah.gem
+      - run: bundle exec rbs -I sig validate
+      - run: gem build --strict jabbah.gemspec --output /tmp/jabbah.gem
+      - uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
       - name: Publish through RubyGems trusted publishing
-        uses: rubygems/release-gem@v1
+        run: gem push /tmp/jabbah.gem
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
