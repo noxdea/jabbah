@@ -1,0 +1,28 @@
+PATH
+  remote: .
+  specs:
+    jabbah (0.1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    minitest (5.27.0)
+    rake (13.4.2)
+
+PLATFORMS
+  arm64-darwin-25
+  ruby
+
+DEPENDENCIES
+  jabbah!
+  minitest (~> 5.0)
+  rake (~> 13.0)
+
+CHECKSUMS
+  bundler (4.0.19) sha256=b48056e4c77fb3853cc47775b5447ede44aaa4f53c32f168014ab4fe86587d47
+  jabbah (0.1.0)
+  minitest (5.27.0)
+  rake (13.4.2)
+
+BUNDLED WITH
+  4.0.19
